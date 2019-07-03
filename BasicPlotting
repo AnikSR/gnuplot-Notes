@@ -1,0 +1,67 @@
+# "> plot f(x)" is the command to plot the function f(x).
+# "> plot f(x), g(x), h(x), k(x)" command plots f(x), g(x), h(x) and k(x) together in the same window.
+# X-range and Y-range are specified with intervals for respectve axis. "> plot [-x:x][-y:y] f(x)" plots the function f(x) in [-x,x] interval
+  of X-axis and [-y,y] interval of Y-axis.
+
+# If range is not given or empty range privided then gnuplot determines a suitable range and uses that. So, "> plot [][] f(x)" draws the graph
+  with default range just as "> plot f(x)". However if only one range is provided, gnuplot will take it as X-range. So if we want to specify
+  the Y-range and give "> plot [-y:y] f(x)" command, gnuplot will graph wiht [-y:y] as X-range and use default for Y-range. To specify only
+  Y-range, empty range like this: "> plot [][-y:y] f(x)" must be given.
+
+# To specify title for individual curves:
+  		> plot f(x) title "Function1", g(x) title "Function2" 
+
+# Plotting file:
+		> plot "[filename]"
+  Plots data from file [filename]. Filename must be inside double quote.
+
+# Data in a file have to be organized in columns. Which columns to use can be specified with following column:
+		> plot "filename" using n:m
+  Data in the first column, column #n is taken as X-data and data in the second column, column #m is taken as Y-data.
+
+# If no filename is given, gnuplot still tries to "fill in the blank" with the previous filename. For example:
+		> plot "file1" using 1:2 with lines, "file2" using 2:3 with linespoint
+		> plot "" using 1:2 with boxes
+  In the second case, gnuplot will fill in the empty string with "file2", as file2 is used immediately before it.
+
+# This "fill in the blanks" behavior goes on for other things as well. In general gnuplot keeps previous user input unless new input in its
+  place overrides it. For example:
+		> plot "file1.txt" using 1:2 with points, ""
+  This command plots (col1,col2)=(x,y) from file1.txt for the first plot request. But in the second command every detail is missing. So "" is
+  filled with the previous filename "file1.txt", col1 and col2 is used as X and Y value as before. Only plotting style is changed, 2nd plot is
+  plotted usually with points: the default style. If the first plot is plotted with points too, then second one uses different colored points.
+
+# Abbreviations:
+  Every command and modifier discussed so far has abbreviated form. "plot" is abbreviated to "p", "with", "using", "title"  are respectively
+  abbreviated to "w", "u", "t" and "lines", "dots", "points", "linespoints" etc are abbreviated respectively to "l", "d", "p", "lp" etc. Thus:
+		> plot [][-10:10] "file.txt" using 1:2 title "One Bank" with lines, "file.txt" using 1:3 title "Two Bank" with linespoints
+  Can be abbreviated to:
+		> p [][-10:10] "file.txt" u 1:2 t "One Bank" w l, "file.txt" u 1:3 t "Two Bank" w lp
+  This type of abbreviation is common in UNIX culture. In gnuplot using abbreviation is the norm, so this is how things will be from now.
+
+# Saving: 
+  Saving in UNIX culture means saving the underlying commands and mathematical expressions (if any) as a file. Thus GIMP save options saves
+  .svg files, not regular picture formats like .png or .jpg. Similarly "save" command is gnuplot saves current gnuplot environment and the
+  last plotting command in a gnuplot scripting file. For example:
+  		> p [][-2:2] sin(x), x, x-x**3/6 u l
+		> save "Mygraph.gp"
+  This will save the above plotting command as well as all the set/unset parameters of gnuplot in "Mygraph.gp" file. gnuplot scripting files
+  like this in the example ends with ".gp", but ".plt" is also used sometimes.
+
+# Loading and calling:
+  		> load "Script.gp"
+  Loads the script file "Script.gp" and executes the gnuplot commands within. There is another command "call" which works like "load" but can
+  take 9 arguments. Arguments can be specified with ARG#. ARG0 by default is the name of the file to call, another default argument ARGC tells
+  "call" how many arguments has been supplied. ARG1 to ARG9 is available for passing additional values to the script.
+
+# Exporting:
+  To save any graph as a printable picture, it have to be exported. However gnuplot have to built-in export function. So this has to be done
+  with basic steps. These steps are:
+		plot f(x)					# Plot command.
+		set terminal png			# Tells gnuplot where to output the graph, usually its a picture format like png, jpg etc.
+		set output "GraphPic.png"	# Specifiy the output file name.
+		replot						# Now plot to specified terminal.
+		set terminal wxt			# Go back to regular terminal, it can also be x11 or qt.
+		set output					# Get back to default output.
+  It is also possible to set terminal and output first and then make the plot command. But using replot brings the possibility to save the
+  whole sequence as a script and use is as a single command. However such is only possible after thorough knowledge of "call" command.
